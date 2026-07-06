@@ -1,0 +1,27 @@
+{
+  "name": "harmless",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run --env-file=.env src/index.ts",
+    "generate": "openapi --input ./spec/openapi.yaml --output ./generated --client node",
+    "lint": "eslint",
+    "typeCheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "openapi-typescript-codegen": "^0.30.0",
+    "eslint": "^10.0.3",
+    "typescript-eslint": "^8.57.0",
+    "prettier": "^3.8.1",
+    "form-data": "^4.0.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.2.0",
+    "boxen": "^8.0.1"
+  }
+}
