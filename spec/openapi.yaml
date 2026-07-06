@@ -3421,9 +3421,9 @@ components:
         model:
           type: string
         object:
-          enum:
-            - response
           type: string
+          const: response
+          default: response
         output:
           items:
             discriminator:

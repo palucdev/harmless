@@ -3,7 +3,7 @@
  */
 
 import { log as clackLog } from '@clack/prompts';
-import type { OpenAIResponsesUsage } from '../../generated';
+import type { OpenAIResponsesUsage } from '../../generated/models/OpenAIResponsesUsage';
 
 let totalTokens = { input: 0, output: 0, requests: 0 };
 

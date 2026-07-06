@@ -1,5 +1,9 @@
-import { extractResponseText, OPENROUTER_EXTRA_HEADERS, OPENROUTER_RESPONSE_ENDPOINT, resolveAIModel, toMessage } from '.';
-import type { FunctionTool, InputMessageItem, Inputs, OpenAIResponsesUsage, OpenResponsesResult, OpenRouterWebSearchServerTool, ResponsesRequest } from '../../generated';
+import { extractResponseText, OPENROUTER_EXTRA_HEADERS, OPENROUTER_RESPONSE_ENDPOINT, resolveAIModel } from '.';
+import type { FunctionTool } from '../../generated/models/FunctionTool';
+import type { Inputs } from '../../generated/models/Inputs';
+import type { OpenResponsesResult } from '../../generated/models/OpenResponsesResult';
+import type { OpenRouterWebSearchServerTool } from '../../generated/models/OpenRouterWebSearchServerTool';
+import type { ResponsesRequest } from '../../generated/models/ResponsesRequest';
 import { fetchWithRetry } from './fetch';
 import type { AgentConversationItem } from './types';
 

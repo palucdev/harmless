@@ -1,5 +1,9 @@
-import type { FunctionTool, InputMessageItem, OpenAIResponsesUsage, OpenResponsesResult, OutputItemFunctionCall } from '../../../generated';
-import { getToolCalls, toMessage } from '../../client';
+import { ResponseOutputText } from '../../../generated/models/ResponseOutputText';
+import type { FunctionTool } from '../../../generated/models/FunctionTool';
+import type { OpenAIResponsesUsage } from '../../../generated/models/OpenAIResponsesUsage';
+import type { OpenResponsesResult } from '../../../generated/models/OpenResponsesResult';
+import type { OutputItemFunctionCall } from '../../../generated/models/OutputItemFunctionCall';
+import { getToolCalls, toInputMessage, toOutputMessage } from '../../client';
 import { askOpenRouter } from '../../client/chatClient';
 import { recordUsage } from '../../client/tokenStats';
 import type { AgentConversationItem } from '../../client/types';
@@ -30,8 +34,8 @@ const runTool = async (toolCall: OutputItemFunctionCall) => {
   }
 };
 
-export const run = async (query: string, conversationHistory: AgentConversationItem[], model: string): Promise<{ response: string; conversationHistory: AgentConversationItem[] }> => {
-  let currentConversation = [...conversationHistory, toMessage('user', query)] as unknown as InputMessageItem[];
+export const run = async (query: string, conversationHistory: AgentConversationItem[], model: string): Promise<AgentConversationItem[]> => {
+  let currentConversation = [...conversationHistory, toInputMessage('user', query)] as unknown as AgentConversationItem[];
 
   log.query(query);
 
@@ -46,7 +50,7 @@ export const run = async (query: string, conversationHistory: AgentConversationI
     if (toolCalls.length === 0) {
       const text = getFinalText(response) ?? 'No response';
 
-      return { response: text, conversationHistory };
+      return [...currentConversation, toOutputMessage(text, response.id)] as unknown as AgentConversationItem[];
     }
 
     currentConversation = await buildNextConversation(currentConversation, toolCalls);
@@ -55,12 +59,12 @@ export const run = async (query: string, conversationHistory: AgentConversationI
   throw new Error(`Max steps (${MAX_STEPS}) reached`);
 };
 
-export const buildNextConversation = async (conversation: any, toolCalls: any[]) => {
+export const buildNextConversation = async (conversation: AgentConversationItem[], toolCalls: OutputItemFunctionCall[]) => {
   const toolResults = await Promise.all(toolCalls.map((call) => runTool(call)));
 
-  return [...conversation, ...toolCalls, ...toolResults];
+  return [...conversation, ...toolCalls, ...toolResults] as AgentConversationItem[];
 };
 
 export const getFinalText = (response: OpenResponsesResult): string | undefined => {
-  return response.output_text ?? response.output.find((item) => item.type === 'message')?.content?.[0]?.text ?? 'No response';
+  return response.output_text ?? (response.output.find((item) => item.type === 'message')?.content?.[0] as ResponseOutputText)?.text ?? 'No response';
 };

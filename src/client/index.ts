@@ -1,4 +1,9 @@
-import { InputMessageItem, InputText, ResponseOutputText, type OpenResponsesResult } from '../../generated';
+import { InputMessageItem } from '../../generated/models/InputMessageItem';
+import { InputText } from '../../generated/models/InputText';
+import { OutputItemFunctionCall } from '../../generated/models/OutputItemFunctionCall';
+import { ResponseOutputText } from '../../generated/models/ResponseOutputText';
+import type { OpenResponsesResult } from '../../generated/models/OpenResponsesResult';
+import { OutputMessage } from '../../generated/models/OutputMessage';
 
 export const OPENROUTER_EMBEDDING_ENDPOINT = 'https://openrouter.ai/api/v1/embeddings';
 export const OPENROUTER_RESPONSE_ENDPOINT = 'https://openrouter.ai/api/v1/responses';
@@ -22,12 +27,24 @@ export const resolveAIModel = (model: string) => {
 /**
  * Create a conversation message in OpenRouter format
  */
-export const toMessage = (role: 'user' | 'system' | 'developer' | 'assistant', content: string): InputMessageItem => ({
+export const toInputMessage = (role: 'user' | 'system' | 'developer', content: string): InputMessageItem => ({
   type: InputMessageItem.type.MESSAGE,
-  role: role as any,
+  role,
   content: [
     {
       type: InputText.type.INPUT_TEXT,
+      text: content,
+    },
+  ],
+});
+
+export const toOutputMessage = (content: string, id: string): OutputMessage => ({
+  id,
+  type: OutputMessage.type.MESSAGE,
+  role: OutputMessage.role.ASSISTANT,
+  content: [
+    {
+      type: ResponseOutputText.type.OUTPUT_TEXT,
       text: content,
     },
   ],
@@ -51,4 +68,4 @@ export const extractResponseText = (data: OpenResponsesResult) => {
   return (textPart as ResponseOutputText)?.text ?? '';
 };
 
-export const getToolCalls = (response: OpenResponsesResult) => response.output.filter((item) => item.type === 'function_call');
+export const getToolCalls = (response: OpenResponsesResult): OutputItemFunctionCall[] => response.output.filter((item) => item.type === OutputItemFunctionCall.type.FUNCTION_CALL);

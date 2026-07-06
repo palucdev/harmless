@@ -27,5 +27,8 @@
     "types": [
       "@types/bun"
     ]
-  }
+  },
+  "exclude": [
+    "generated"
+  ]
 }

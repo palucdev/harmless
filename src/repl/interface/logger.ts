@@ -5,7 +5,7 @@
 
 import { log as clackLog } from '@clack/prompts';
 import boxen from 'boxen';
-import type { OpenAIResponsesUsage } from '../../../generated';
+import type { OpenAIResponsesUsage } from '../../../generated/models/OpenAIResponsesUsage';
 
 // ── ANSI codes for internal/debug output that doesn't fit clack's model ──
 
@@ -58,7 +58,7 @@ const log = {
     }
   },
 
-  tool: (name: string, args: any) => {
+  tool: (name: string, args: unknown) => {
     const argStr = JSON.stringify(args);
     const truncated = argStr.length > 100 ? argStr.substring(0, 100) + '...' : argStr;
     console.log(`${colors.dim}[${timestamp()}]${colors.reset} ${colors.yellow}⚡${colors.reset} [INFO] ${name} ${colors.dim}${truncated}${colors.reset}`);
@@ -80,7 +80,7 @@ const log = {
     console.log(`${colors.dim}         A: ${truncated}${colors.reset}`);
   },
 
-  reasoning: (summaries: any[]) => {
+  reasoning: (summaries: string[]) => {
     if (!summaries?.length) return;
     console.log(`${colors.dim}         ${colors.cyan}reasoning:${colors.reset}`);
     for (const summary of summaries) {

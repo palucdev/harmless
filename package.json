@@ -7,7 +7,7 @@
     "start": "bun run --env-file=.env src/index.ts",
     "generate": "openapi --input ./spec/openapi.yaml --output ./generated --client node",
     "lint": "eslint",
-    "typeCheck": "tsc --noEmit"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest",

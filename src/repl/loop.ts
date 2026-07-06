@@ -3,14 +3,15 @@ import { showHeader, showStats } from './interface/ui';
 import type { AgentConversationItem } from '../client/types';
 import { basicChat } from './action/chat';
 
-const cleanup = async (markCompleted = true) => {
-  // TOOD: implement cleanup after repl exit / session ending
-};
-
 export const runReplLoop = async (): Promise<void> => {
   let conversation: AgentConversationItem[] = [];
   const agentName = 'assistant';
   const model = process.env.DEFAULT_MODEL ?? 'openrouter/free';
+
+  const cleanup = async () => {
+    // TOOD: implement cleanup after repl exit / session ending
+    conversation = [];
+  };
 
   p.intro('Starting agent session...');
   showHeader(agentName, model, 1);
@@ -31,8 +32,14 @@ export const runReplLoop = async (): Promise<void> => {
     if (p.isCancel(action)) {
       showStats();
       p.outro('Session preserved. Goodbye!');
-      await cleanup(false);
+      await cleanup();
       return;
+    }
+
+    if (action === 'clear') {
+      showStats();
+      await cleanup();
+      continue;
     }
 
     if (action === 'exit') {
@@ -43,7 +50,7 @@ export const runReplLoop = async (): Promise<void> => {
     }
 
     if (action === 'chat') {
-      await basicChat(conversation, model, 1);
+      conversation = await basicChat(conversation, model);
       continue;
     }
   }
