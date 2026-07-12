@@ -32,6 +32,7 @@ export interface AgentStartedPayload {
   sessionId: number;
   query: string;
   depth: number;
+  subagentId?: string;
 }
 
 export interface AgentCompletedPayload {
@@ -41,6 +42,7 @@ export interface AgentCompletedPayload {
   itemCount: number;
   errored: boolean;
   responseResult?: HarmlessResponseResult;
+  subagentId?: string;
 }
 
 export interface ModelRequestPayload {

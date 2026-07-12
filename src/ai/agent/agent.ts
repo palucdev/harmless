@@ -20,10 +20,12 @@ const MAX_DEPTH = 3;
 export class Agent {
   private definition: AgentDefinition;
   private toolRunner: ToolRunner;
+  private subagentId?: string;
 
-  constructor(definition: AgentDefinition) {
+  constructor(definition: AgentDefinition, subagentId?: string) {
     this.definition = definition;
     this.toolRunner = new ToolRunner(definition.tools);
+    this.subagentId = subagentId;
   }
 
   public run = async (
@@ -35,13 +37,14 @@ export class Agent {
     response: string;
     conversationHistory: AgentConversationItem[];
   }> => {
+    let currentConversation: AgentConversationItem[] = [];
     try {
       if (depth > MAX_DEPTH) {
         throw new Error('Max agent depth exceeded');
       }
 
-      const currentConversation: AgentConversationItem[] = [toInputMessage('system', this.definition.systemPrompt), ...conversationHistory, toInputMessage('user', query)];
-      AgentEventEmitter.emit(EventTypes.AGENT_STARTED, { agentName: this.definition.name, sessionId, query, depth });
+      currentConversation = [toInputMessage('system', this.definition.systemPrompt), ...conversationHistory, toInputMessage('user', query)];
+      AgentEventEmitter.emit(EventTypes.AGENT_STARTED, { agentName: this.definition.name, sessionId, query, depth, subagentId: this.subagentId });
 
       for (let step = 1; step <= this.definition.stepLimit; step++) {
         AgentEventEmitter.emit(EventTypes.MODEL_REQUEST, {
@@ -59,6 +62,7 @@ export class Agent {
           schema: this.definition.schema,
           plugins: [],
           reasoning: this.definition.reasoning,
+          maxOutputTokens: 8192,
         });
 
         AgentEventEmitter.emit(EventTypes.MODEL_RESPONSE, { sessionId, responseResult: response });
@@ -92,12 +96,36 @@ export class Agent {
             itemCount: currentConversation.length,
             errored: false,
             responseResult: response,
+            subagentId: this.subagentId,
           });
 
           return { response: text, conversationHistory: currentConversation };
         }
 
-        // Run all tools concurrently
+        // Run all tools concurrently (limiting delegate concurrency to Max 10)
+        const delegateLimit = 10;
+        let activeDelegates = 0;
+        const delegateQueue: (() => void)[] = [];
+
+        const acquireSlot = () => {
+          if (activeDelegates < delegateLimit) {
+            activeDelegates++;
+            return Promise.resolve();
+          }
+          return new Promise<void>((resolve) => {
+            delegateQueue.push(resolve);
+          });
+        };
+
+        const releaseSlot = () => {
+          activeDelegates--;
+          const next = delegateQueue.shift();
+          if (next) {
+            activeDelegates++;
+            next();
+          }
+        };
+
         const toolResults: HarmlessFunctionCallOutputItem[] = await Promise.all(
           toolCalls.map(async (toolCall) => {
             const toolName = toolCall.name;
@@ -112,7 +140,22 @@ export class Agent {
             let output: string;
 
             if (toolName === 'delegate') {
-              output = await spawnAgent(sessionId, depth, args);
+              if (Array.isArray(args.tasks) && args.tasks.length > 0) {
+                const results = await Promise.all(
+                  args.tasks.map(async (t: any, index: number) => {
+                    await acquireSlot();
+                    try {
+                      const res = await spawnAgent(sessionId, depth, t as Record<string, unknown>);
+                      return `Task ${index + 1} (${t.agent}):\n${res}`;
+                    } finally {
+                      releaseSlot();
+                    }
+                  })
+                );
+                output = results.join('\n\n---\n\n');
+              } else {
+                output = 'Error: tasks array is required and must not be empty';
+              }
             } else {
               const toolResult = await this.toolRunner.runTool(toolCall, sessionId);
               output = toolResult.output as string;
@@ -125,10 +168,30 @@ export class Agent {
         currentConversation.push(...toolResults);
       }
 
-      return { response: `[${this.definition.name}] completed with max steps reached`, conversationHistory: currentConversation };
+      const responseText = `[${this.definition.name}] completed with max steps reached`;
+      AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, {
+        agentName: this.definition.name,
+        sessionId,
+        response: responseText,
+        itemCount: currentConversation.length,
+        errored: false,
+        subagentId: this.subagentId,
+      });
+
+      return { response: responseText, conversationHistory: currentConversation };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[${this.definition.name}] Error:`, msg);
+
+      AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, {
+        agentName: this.definition.name,
+        sessionId,
+        response: msg,
+        itemCount: currentConversation.length,
+        errored: true,
+        subagentId: this.subagentId,
+      });
+
       throw `Agent error: ${msg}`;
     }
   };

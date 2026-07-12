@@ -1,6 +1,7 @@
 import { extractResponsesReasoning, extractResponsesReasoningContent } from '../../client/responses-client';
 import { recordUsage } from '../../client/token-stats';
 import log from '../../repl/interface/logger';
+import { truncate } from '../../repl/interface/utils';
 import { AgentEventEmitter } from './agent-event-emitter';
 import { EventTypes } from './event-types';
 import type { AgentEvent, ToolPreCallPayload, ToolPostCallPayload, AgentStartedPayload, AgentCompletedPayload, ModelRequestPayload, ModelResponsePayload } from './types';
@@ -14,20 +15,26 @@ export const createLogsWriter = (): (() => void) => {
         break;
       case EventTypes.TOOL_POST_USE:
         const toolResultData = event.data as ToolPostCallPayload;
-        log.toolResult(toolResultData.toolName, toolResultData.status === 'success', toolResultData.output);
+        let output = toolResultData.output;
+        if (toolResultData.toolName.startsWith('fs_') && typeof output === 'string') {
+          output = truncate(output, 200);
+        }
+        log.toolResult(toolResultData.toolName, toolResultData.status === 'success', output);
         break;
       case EventTypes.AGENT_STARTED:
         const agentStartedData = event.data as AgentStartedPayload;
-        log.info(`[${agentStartedData.agentName}] Starting (depth: ${agentStartedData.depth})`);
+        const startIdSuffix = agentStartedData.subagentId ? ` #${agentStartedData.subagentId}` : '';
+        log.info(`[${agentStartedData.agentName}${startIdSuffix}] Starting (depth: ${agentStartedData.depth})`);
         break;
       case EventTypes.AGENT_COMPLETED:
         const agentCompletedData = event.data as AgentCompletedPayload;
+        const compIdSuffix = agentCompletedData.subagentId ? ` #${agentCompletedData.subagentId}` : '';
 
         if (agentCompletedData.errored) {
-          log.info(`[${agentCompletedData.agentName}] Errored`);
+          log.info(`[${agentCompletedData.agentName}${compIdSuffix}] Errored`);
           log.error('Error', agentCompletedData.response);
         } else {
-          log.info(`[${agentCompletedData.agentName}] Completed`);
+          log.info(`[${agentCompletedData.agentName}${compIdSuffix}] Completed`);
         }
         break;
       case EventTypes.MODEL_REQUEST:

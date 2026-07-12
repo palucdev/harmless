@@ -9,6 +9,7 @@ import { AgentEventEmitter } from '../memory/events/agent-event-emitter';
 import { registerCoreTools } from '../ai/tools/core';
 import { registerFilesystemTools } from '../ai/tools/fs';
 import { ToolsRegistry } from '../ai/tools/tools-registry';
+import { registerOrchestratorTools } from '../ai/tools/orchestrator';
 
 const initializeApplication = async () => {
   // Initialize singletons
@@ -18,6 +19,7 @@ const initializeApplication = async () => {
   // Load data
   await registerCoreTools();
   await registerFilesystemTools();
+  await registerOrchestratorTools();
   await initAgentDefinitions();
 };
 

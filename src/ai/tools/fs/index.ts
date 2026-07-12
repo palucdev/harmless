@@ -269,7 +269,7 @@ export const fsToolDefinitions: ToolDefinition[] = [
 ];
 
 /**
- * Register all core tool groups with the registry.
+ * Register all filesystem tool groups with the registry.
  * Should be called during application startup.
  */
 export const registerFilesystemTools = async (): Promise<void> => {
