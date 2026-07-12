@@ -1,4 +1,4 @@
-import { OPENROUTER_EXTRA_HEADERS, OPENROUTER_RESPONSE_ENDPOINT, resolveAIModel } from '.';
+import { OPENROUTER_EXTRA_HEADERS, OPENROUTER_RESPONSE_ENDPOINT, resolveAIModel, toInputMessage } from '.';
 import type { FormatJsonSchemaConfig } from '../../generated/models/FormatJsonSchemaConfig';
 import type { FunctionTool } from '../../generated/models/FunctionTool';
 import type { InputMessageItem } from '../../generated/models/InputMessageItem';
@@ -16,6 +16,7 @@ import type { ResponsesRequest } from '../../generated/models/ResponsesRequest';
 
 import { fetchWithRetry } from './fetch';
 import type { Usage } from '../../generated/models/Usage';
+import type { OpenRouterWebSearchServerTool } from '../../generated/models/OpenRouterWebSearchServerTool';
 
 export type HarmlessFunctionCallOutputItem = FunctionCallOutputItem;
 
@@ -42,6 +43,13 @@ export interface HarmlessResponsesParams {
   toolChoice?: OpenAIResponsesToolChoice;
   reasoning?: ReasoningConfig;
 }
+
+export type HarmlessWebSearchResponsesParams = {
+  query: string;
+  model: string;
+  tools: (FunctionTool | OpenRouterWebSearchServerTool)[];
+  maxOutputTokens?: number;
+};
 
 export type HarmlessResponsesRequest = ResponsesRequest;
 
@@ -109,6 +117,31 @@ export const fetchResponsesAPI = async ({
 
   if (plugins.length > 0) {
     request.plugins = plugins;
+  }
+
+  const data = (await fetchWithRetry(OPENROUTER_RESPONSE_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      ...OPENROUTER_EXTRA_HEADERS,
+    },
+    body: JSON.stringify(request),
+  })) as HarmlessResponseResult;
+
+  return data;
+};
+
+export const fetchWebSearchResponsesAPI = async ({ model, tools, query, maxOutputTokens }: HarmlessWebSearchResponsesParams): Promise<HarmlessResponseResult> => {
+  const request: ResponsesRequest = {
+    model: resolveAIModel(model),
+    input: [toInputMessage('user', query)] as unknown as Inputs,
+    tools,
+    max_output_tokens: maxOutputTokens,
+  };
+
+  if (tools.length > 0) {
+    request.tools = tools;
   }
 
   const data = (await fetchWithRetry(OPENROUTER_RESPONSE_ENDPOINT, {

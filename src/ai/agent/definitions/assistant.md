@@ -1,7 +1,7 @@
 ---
 name: 'assistant'
 description: 'General purpose assistant for simple tasks'
-tools: []
+tools: [core]
 stepLimit: 15
 subAgents: []
 skills: []
