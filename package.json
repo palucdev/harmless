@@ -21,8 +21,15 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@types/diff": "^8.0.0",
+    "@types/picomatch": "^4.0.2",
     "@clack/prompts": "^1.2.0",
     "boxen": "^8.0.1",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "fast-glob": "^3.3.3",
+    "fuzzysort": "^3.1.0",
+    "diff": "^8.0.3",
+    "picomatch": "^4.0.3",
+    "zod-to-json-schema": "^3.25.1"
   }
 }

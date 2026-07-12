@@ -7,6 +7,7 @@ import { getAgentDefinition, initAgentDefinitions } from '../ai/agent/agent-regi
 import { handleAgentChange } from './action/agent-change';
 import { AgentEventEmitter } from '../memory/events/agent-event-emitter';
 import { registerCoreTools } from '../ai/tools/core';
+import { registerFilesystemTools } from '../ai/tools/fs';
 import { ToolsRegistry } from '../ai/tools/tools-registry';
 
 const initializeApplication = async () => {
@@ -16,6 +17,7 @@ const initializeApplication = async () => {
 
   // Load data
   await registerCoreTools();
+  await registerFilesystemTools();
   await initAgentDefinitions();
 };
 
