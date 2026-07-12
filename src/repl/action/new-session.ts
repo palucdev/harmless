@@ -2,6 +2,7 @@ import * as p from '@clack/prompts';
 import type { AgentConversationItem } from '../../client/responses-client';
 import { Agent } from '../../ai/agent/agent';
 import { showStats } from '../interface/ui';
+import log from '../interface/logger';
 import type { AgentDefinition } from '../../ai/types/agent-definition';
 
 export const newSession = async (agentDefinition: AgentDefinition, currentSessionId: number): Promise<void> => {
@@ -29,6 +30,7 @@ export const newSession = async (agentDefinition: AgentDefinition, currentSessio
 
       s.stop('Done');
 
+      log.response(result.response);
       showStats();
     } catch (err) {
       const error = err as Error;

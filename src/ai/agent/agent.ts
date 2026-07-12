@@ -5,6 +5,7 @@ import {
   fetchResponsesAPI,
   getResponsesFuntionCallOutput,
   getResponsesToolCalls,
+  extractResponsesText,
   type AgentConversationItem,
   type HarmlessFunctionCallOutputItem,
   type HarmlessResponseResult,
@@ -76,9 +77,22 @@ export class Agent {
         const toolCalls = getResponsesToolCalls(response);
 
         if (toolCalls.length === 0) {
-          const text = response.output_text ?? 'No response';
+          let text = response.output_text ?? extractResponsesText(response) ?? 'No response';
+          try {
+            const parsed = JSON.parse(text);
+            if (typeof parsed?.text === 'string') text = parsed.text;
+          } catch {
+            /* output_text is plain text, use as-is */
+          }
 
-          AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, { agentName: this.definition.name, sessionId, response: text, itemCount: currentConversation.length, errored: false, responseResult: response });
+          AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, {
+            agentName: this.definition.name,
+            sessionId,
+            response: text,
+            itemCount: currentConversation.length,
+            errored: false,
+            responseResult: response,
+          });
 
           return { response: text, conversationHistory: currentConversation };
         }

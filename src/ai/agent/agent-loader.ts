@@ -3,7 +3,7 @@ import { Glob } from 'bun';
 import * as path from 'node:path';
 import type { ToolDefinition } from '../types/tool-definition.js';
 import type { AgentDefinition } from '../types/agent-definition.js';
-import { resolveTools } from '../tools/tools-registry.js';
+import { ToolsRegistry } from '../tools/tools-registry.js';
 
 // ─────────────────────────────────────────────────────────────
 // Agent Loader - Parse .md files into AgentDefinition objects
@@ -112,7 +112,7 @@ export const loadAgentDefinitions = async (definitionsPath?: string): Promise<Ma
       // 8. Tool resolution (lazy for unknown tools)
       let tools: ToolDefinition[] = [];
       try {
-        tools = resolveTools(frontmatter.tools);
+        tools = ToolsRegistry.resolveTools(frontmatter.tools);
       } catch (err) {
         // If tools can't be resolved, it might be exercise-specific tools
         // Store empty array for now - exercise solver can register tools on-demand

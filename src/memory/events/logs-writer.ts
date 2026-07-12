@@ -1,4 +1,4 @@
-import { extractResponsesReasoning, extractResponsesReasoningContent, extractResponsesText } from '../../client/responses-client';
+import { extractResponsesReasoning, extractResponsesReasoningContent } from '../../client/responses-client';
 import { recordUsage } from '../../client/token-stats';
 import log from '../../repl/interface/logger';
 import { AgentEventEmitter } from './agent-event-emitter';
@@ -28,14 +28,6 @@ export const createLogsWriter = (): (() => void) => {
           log.error('Error', agentCompletedData.response);
         } else {
           log.info(`[${agentCompletedData.agentName}] Completed`);
-          if (agentCompletedData.responseResult) {
-            const completedOutputText = extractResponsesText(agentCompletedData.responseResult);
-            if (completedOutputText) {
-              log.response(completedOutputText);
-            }
-          } else {
-            log.response(agentCompletedData.response);
-          }
         }
         break;
       case EventTypes.MODEL_REQUEST:

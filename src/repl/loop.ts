@@ -3,18 +3,24 @@ import { showHeader, showStats } from './interface/ui';
 import { simpleChat } from './action/simple-chat';
 import { newSession } from './action/new-session';
 import { createLogsWriter } from '../memory/events/logs-writer';
-import type { AgentConversationItem } from '../client/responses-client';
 import { getAgentDefinition, initAgentDefinitions } from '../ai/agent/agent-registry';
 import { handleAgentChange } from './action/agent-change';
 import { AgentEventEmitter } from '../memory/events/agent-event-emitter';
+import { registerCoreTools } from '../ai/tools/core';
+import { ToolsRegistry } from '../ai/tools/tools-registry';
 
-const initializeApplicaiton = async () => {
-  await initAgentDefinitions();
+const initializeApplication = async () => {
+  // Initialize singletons
   AgentEventEmitter.initialize();
+  ToolsRegistry.initialize();
+
+  // Load data
+  await registerCoreTools();
+  await initAgentDefinitions();
 };
 
 export const runReplLoop = async (): Promise<void> => {
-  await initializeApplicaiton();
+  await initializeApplication();
 
   const model = process.env.DEFAULT_MODEL ?? 'openrouter/free';
 

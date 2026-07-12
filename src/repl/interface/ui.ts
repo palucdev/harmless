@@ -8,7 +8,7 @@ export const showHeader = (agentName: string, model: string, sessionId: number) 
       borderStyle: 'round',
       borderColor: 'cyan',
       padding: { top: 0, bottom: 0, left: 2, right: 2 },
-      title: 'ai_devs4',
+      title: 'Harmless',
       titleAlignment: 'center',
     })
   );
