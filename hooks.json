@@ -1,0 +1,26 @@
+{
+  "tool:preUse": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "tool:postUse": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "agent:started": {
+    "bash": "./hooks/init-session-log.sh"
+  },
+  "agent:completed": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "model:request": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "model:response": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "message:added": {
+    "bash": "./hooks/append-session-log.sh"
+  },
+  "skill:onLoad": {
+    "bash": "./hooks/append-session-log.sh"
+  }
+}

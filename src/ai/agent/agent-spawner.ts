@@ -1,5 +1,5 @@
-import { AgentEventEmitter } from '../../memory/events/agent-event-emitter';
-import { EventTypes } from '../../memory/events/event-types';
+import { AgentEventEmitter } from '../../lifecycle/events/agent-event-emitter';
+import { EventTypes } from '../../lifecycle/events/event-types';
 import { Agent } from './agent';
 import { getAgentDefinition } from './agent-registry';
 

@@ -11,8 +11,8 @@ import {
   type HarmlessResponseResult,
 } from '../../client/responses-client';
 import { toInputMessage } from '../../client';
-import { AgentEventEmitter } from '../../memory/events/agent-event-emitter';
-import { EventTypes } from '../../memory/events/event-types';
+import { AgentEventEmitter } from '../../lifecycle/events/agent-event-emitter';
+import { EventTypes } from '../../lifecycle/events/event-types';
 import { spawnAgent } from './agent-spawner';
 import SkillsRegistry from '../skills/skills-registry';
 

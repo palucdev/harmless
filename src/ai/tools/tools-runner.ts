@@ -2,8 +2,8 @@ import type { FunctionCallOutputItem } from '../../../generated/models/FunctionC
 import type { FunctionTool } from '../../../generated/models/FunctionTool';
 import { OpenAIResponseFunctionToolCallOutput } from '../../../generated/models/OpenAIResponseFunctionToolCallOutput';
 import type { OutputItemFunctionCall } from '../../../generated/models/OutputItemFunctionCall';
-import { AgentEventEmitter } from '../../memory/events/agent-event-emitter';
-import { EventTypes } from '../../memory/events/event-types';
+import { AgentEventEmitter } from '../../lifecycle/events/agent-event-emitter';
+import { EventTypes } from '../../lifecycle/events/event-types';
 import type { ToolDefinition } from '../types/tool-definition';
 
 export class ToolRunner {

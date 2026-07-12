@@ -2,10 +2,10 @@ import * as p from '@clack/prompts';
 import { showHeader, showStats } from './interface/ui';
 import { simpleChat } from './action/simple-chat';
 import { newSession } from './action/new-session';
-import { createLogsWriter } from '../memory/events/logs-writer';
+import { createLogsWriter } from '../lifecycle/events/logs-writer';
 import { getAgentDefinition, initAgentDefinitions } from '../ai/agent/agent-registry';
 import { handleAgentChange } from './action/agent-change';
-import { AgentEventEmitter } from '../memory/events/agent-event-emitter';
+import { AgentEventEmitter } from '../lifecycle/events/agent-event-emitter';
 import { registerCoreTools } from '../ai/tools/core';
 import { registerFilesystemTools } from '../ai/tools/fs';
 import { ToolsRegistry } from '../ai/tools/tools-registry';
@@ -14,21 +14,26 @@ import { ReplActions } from './action/actions';
 import { handleSkills } from './action/skills';
 import { loadSkillDefinitions } from '../ai/skills/skills-loader';
 import SkillsRegistry from '../ai/skills/skills-registry';
+import { HookRegistry } from '../lifecycle/hooks/hook-registry';
+import { loadHooks } from '../lifecycle/hooks/hook-loader';
+import { createHookRunner } from '../lifecycle/hooks/hook-runner';
 
 const initializeApplication = async () => {
   // Initialize singletons
   AgentEventEmitter.initialize();
   ToolsRegistry.initialize();
   SkillsRegistry.initialize();
+  HookRegistry.initialize();
 
   // Load data
   await registerCoreTools();
   await registerFilesystemTools();
   await registerOrchestratorTools();
 
-  // Load agents and skills
+  // Load agents, skills, hooks
   await loadSkillDefinitions();
   await initAgentDefinitions();
+  await loadHooks();
 };
 
 export const runReplLoop = async (): Promise<void> => {
@@ -40,10 +45,12 @@ export const runReplLoop = async (): Promise<void> => {
   let currentSessionId = 1;
 
   const unsubscribeLogsWriter = createLogsWriter();
+  const unsubscribeHookRunner = createHookRunner();
 
   const cleanup = async () => {
     // TOOD: implement cleanup after repl exit / session ending
     unsubscribeLogsWriter();
+    unsubscribeHookRunner();
   };
 
   p.intro('Starting agent session...');
