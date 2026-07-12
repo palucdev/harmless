@@ -1,10 +1,10 @@
 import * as p from '@clack/prompts';
-import type { AgentConversationItem } from '../../client/types';
 import { showStats } from '../interface/ui';
-import { run } from '../../ai/agent/chatAssistant';
+import { run } from '../../ai/agent/simple-chat-assistant';
 import type { OutputMessage } from '../../../generated/models/OutputMessage';
+import type { AgentConversationItem } from '../../client/responses-client';
 
-export const basicChat = async (conversation: AgentConversationItem[], model: string): Promise<AgentConversationItem[]> => {
+export const simpleChat = async (conversation: AgentConversationItem[], model: string): Promise<AgentConversationItem[]> => {
   const input = await p.text({
     message: 'Your message:',
     placeholder: 'Ask anything...',

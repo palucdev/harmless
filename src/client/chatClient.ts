@@ -5,7 +5,7 @@ import type { OpenResponsesResult } from '../../generated/models/OpenResponsesRe
 import type { OpenRouterWebSearchServerTool } from '../../generated/models/OpenRouterWebSearchServerTool';
 import type { ResponsesRequest } from '../../generated/models/ResponsesRequest';
 import { fetchWithRetry } from './fetch';
-import type { AgentConversationItem } from './types';
+import type { AgentConversationItem } from './responses-client';
 
 export const askOpenRouter = async (conversation: AgentConversationItem[], model: string, tools?: (FunctionTool | OpenRouterWebSearchServerTool)[]): Promise<OpenResponsesResult> => {
   const requestBody: ResponsesRequest = {

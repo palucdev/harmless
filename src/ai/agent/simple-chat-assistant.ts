@@ -5,9 +5,9 @@ import type { OpenResponsesResult } from '../../../generated/models/OpenResponse
 import type { OutputItemFunctionCall } from '../../../generated/models/OutputItemFunctionCall';
 import { getToolCalls, toInputMessage, toOutputMessage } from '../../client';
 import { askOpenRouter } from '../../client/chatClient';
-import { recordUsage } from '../../client/tokenStats';
-import type { AgentConversationItem } from '../../client/types';
+import { recordUsage } from '../../client/token-stats';
 import log from '../../repl/interface/logger';
+import type { AgentConversationItem } from '../../client/responses-client';
 
 const assistantTools: FunctionTool[] = [];
 const assistantToolHandlers: Record<string, (args: unknown) => Promise<unknown>> = {};

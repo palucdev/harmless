@@ -6,6 +6,7 @@
 import { log as clackLog } from '@clack/prompts';
 import boxen from 'boxen';
 import type { OpenAIResponsesUsage } from '../../../generated/models/OpenAIResponsesUsage';
+import { truncate } from './utils';
 
 // ── ANSI codes for internal/debug output that doesn't fit clack's model ──
 
@@ -44,8 +45,7 @@ const log = {
 
   query: (q: string) => clackLog.message(q, { symbol: `${colors.bgBlue}${colors.white} Q ${colors.reset}` }),
   response: (r: string) => {
-    const truncated = r.substring(0, 200) + (r.length > 200 ? '...' : '');
-    clackLog.message(truncated, { symbol: `${colors.green} A ${colors.reset}` });
+    clackLog.message(truncate(r, 200), { symbol: `${colors.green} A ${colors.reset}` });
   },
 
   api: (step: string, msgCount: number) => {
@@ -60,14 +60,12 @@ const log = {
 
   tool: (name: string, args: unknown) => {
     const argStr = JSON.stringify(args);
-    const truncated = argStr.length > 100 ? argStr.substring(0, 100) + '...' : argStr;
-    console.log(`${colors.dim}[${timestamp()}]${colors.reset} ${colors.yellow}⚡${colors.reset} [INFO] ${name} ${colors.dim}${truncated}${colors.reset}`);
+    console.log(`${colors.dim}[${timestamp()}]${colors.reset} ${colors.yellow}⚡${colors.reset} [INFO] ${name} ${colors.dim}${truncate(argStr, 100)}${colors.reset}`);
   },
 
   toolResult: (name: string, success: boolean, output: string) => {
     const icon = success ? `${colors.green}✓${colors.reset}` : `${colors.red}✗${colors.reset}`;
-    const truncated = output.length > 150 ? output.substring(0, 150) + '...' : output;
-    console.log(`${colors.dim}         ${icon} [RESULT] ${truncated}${colors.reset}`);
+    console.log(`${colors.dim}         ${icon} [RESULT] ${truncate(output, 150)}${colors.reset}`);
   },
 
   vision: (path: string, question: string) => {
@@ -76,8 +74,7 @@ const log = {
   },
 
   visionResult: (answer: string) => {
-    const truncated = answer.length > 200 ? answer.substring(0, 200) + '...' : answer;
-    console.log(`${colors.dim}         A: ${truncated}${colors.reset}`);
+    console.log(`${colors.dim}         A: ${truncate(answer, 200)}${colors.reset}`);
   },
 
   reasoning: (summaries: string[]) => {

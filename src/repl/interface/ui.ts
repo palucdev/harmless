@@ -1,6 +1,6 @@
 import boxen from 'boxen';
 import * as p from '@clack/prompts';
-import { getStats } from '../../client/tokenStats';
+import { getStats } from '../../client/token-stats';
 
 export const showHeader = (agentName: string, model: string, sessionId: number) => {
   console.log(
