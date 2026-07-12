@@ -78,7 +78,7 @@ export class Agent {
         if (toolCalls.length === 0) {
           const text = response.output_text ?? 'No response';
 
-          AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, { agentName: this.definition.name, sessionId, response: text, itemCount: currentConversation.length, errored: false });
+          AgentEventEmitter.emit(EventTypes.AGENT_COMPLETED, { agentName: this.definition.name, sessionId, response: text, itemCount: currentConversation.length, errored: false, responseResult: response });
 
           return { response: text, conversationHistory: currentConversation };
         }

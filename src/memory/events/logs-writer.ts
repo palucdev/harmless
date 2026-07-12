@@ -1,4 +1,4 @@
-import { extractResponsesReasoning } from '../../client/responses-client';
+import { extractResponsesReasoning, extractResponsesReasoningContent, extractResponsesText } from '../../client/responses-client';
 import { recordUsage } from '../../client/token-stats';
 import log from '../../repl/interface/logger';
 import { AgentEventEmitter } from './agent-event-emitter';
@@ -19,7 +19,6 @@ export const createLogsWriter = (): (() => void) => {
       case EventTypes.AGENT_STARTED:
         const agentStartedData = event.data as AgentStartedPayload;
         log.info(`[${agentStartedData.agentName}] Starting (depth: ${agentStartedData.depth})`);
-        log.query(agentStartedData.query);
         break;
       case EventTypes.AGENT_COMPLETED:
         const agentCompletedData = event.data as AgentCompletedPayload;
@@ -29,18 +28,25 @@ export const createLogsWriter = (): (() => void) => {
           log.error('Error', agentCompletedData.response);
         } else {
           log.info(`[${agentCompletedData.agentName}] Completed`);
-          log.response(agentCompletedData.response);
+          if (agentCompletedData.responseResult) {
+            const completedOutputText = extractResponsesText(agentCompletedData.responseResult);
+            if (completedOutputText) {
+              log.response(completedOutputText);
+            }
+          } else {
+            log.response(agentCompletedData.response);
+          }
         }
         break;
       case EventTypes.MODEL_REQUEST:
         const modelRequestData = event.data as ModelRequestPayload;
         log.api(modelRequestData.step, modelRequestData.msgCount);
-        log.query(modelRequestData.query);
         break;
       case EventTypes.MODEL_RESPONSE:
         const modelResponseData = event.data as ModelResponsePayload;
         log.apiDone(modelResponseData.responseResult.usage);
         recordUsage(modelResponseData.responseResult.usage);
+        log.reasoning(extractResponsesReasoningContent(modelResponseData.responseResult));
         log.reasoning(extractResponsesReasoning(modelResponseData.responseResult));
         break;
     }

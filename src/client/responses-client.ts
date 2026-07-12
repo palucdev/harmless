@@ -61,6 +61,13 @@ export const extractResponsesReasoning = (response: HarmlessResponseResult) =>
     .map((s) => s.text)
     .filter(Boolean);
 
+export const extractResponsesReasoningContent = (response: HarmlessResponseResult): string[] =>
+  response.output
+    .filter((item) => item.type === 'reasoning')
+    .flatMap((item: any) => item.content ?? [])
+    .filter((part: any) => part?.type === 'reasoning_text' && typeof part?.text === 'string')
+    .map((part: any) => part.text as string);
+
 export const extractResponsesText = (response: HarmlessResponseResult) => {
   if (typeof response?.output_text === 'string' && response.output_text.trim()) {
     return response.output_text;

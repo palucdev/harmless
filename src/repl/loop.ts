@@ -16,21 +16,20 @@ const initializeApplicaiton = async () => {
 export const runReplLoop = async (): Promise<void> => {
   await initializeApplicaiton();
 
-  let conversation: AgentConversationItem[] = [];
   const model = process.env.DEFAULT_MODEL ?? 'openrouter/free';
 
-  let currentAgent = getAgentDefinition('assistant')!;
+  let currentAgentDefinition = getAgentDefinition('assistant')!;
+  let currentSessionId = 1;
 
   const unsubscribeLogsWriter = createLogsWriter();
 
   const cleanup = async () => {
     // TOOD: implement cleanup after repl exit / session ending
-    conversation = [];
     unsubscribeLogsWriter();
   };
 
   p.intro('Starting agent session...');
-  showHeader(currentAgent.name, model, 1);
+  showHeader(currentAgentDefinition.name, model, currentSessionId);
 
   while (true) {
     const action = await p.select({
@@ -70,19 +69,19 @@ export const runReplLoop = async (): Promise<void> => {
       const selectedAgent = await handleAgentChange();
 
       if (selectedAgent) {
-        currentAgent = selectedAgent;
+        currentAgentDefinition = selectedAgent;
       }
 
-      showHeader(currentAgent.name, model, 1);
+      showHeader(currentAgentDefinition.name, model, 1);
     }
 
     if (action === 'simpleChat') {
-      conversation = await simpleChat(conversation, model);
+      await simpleChat(model);
       continue;
     }
 
     if (action === 'newSession') {
-      conversation = await newSession(conversation, model);
+      await newSession(currentAgentDefinition, currentSessionId);
       continue;
     }
   }

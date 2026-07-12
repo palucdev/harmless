@@ -40,6 +40,7 @@ export interface AgentCompletedPayload {
   response: string;
   itemCount: number;
   errored: boolean;
+  responseResult?: HarmlessResponseResult;
 }
 
 export interface ModelRequestPayload {
