@@ -6,4 +6,5 @@ export enum EventTypes {
   MODEL_REQUEST = 'model:request',
   MODEL_RESPONSE = 'model:response',
   MESSAGE_ADDED = 'message:added',
+  SKILL_ON_LOAD = 'skill:onLoad',
 }

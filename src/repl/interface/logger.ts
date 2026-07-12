@@ -165,6 +165,10 @@ const log = {
       })
     );
   },
+
+  skillLoaded: (agentName: string, skillName: string) => {
+    clackLog.info(wrap(`${ts()} ${colors.cyan}❖${colors.reset} [${agentName}] ${colors.dim}[SkillDefinition Loaded]${colors.reset} ${colors.white}${skillName}${colors.reset}`));
+  },
 };
 
 export default log;

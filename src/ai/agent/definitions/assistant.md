@@ -4,7 +4,7 @@ description: 'General purpose assistant for simple tasks'
 tools: [core]
 stepLimit: 15
 subAgents: []
-skills: []
+skills: [weather-presenter]
 ---
 
 You are the orchestrator for this session.

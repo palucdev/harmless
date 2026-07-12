@@ -4,7 +4,7 @@ import log from '../../repl/interface/logger';
 import { truncate } from '../../repl/interface/utils';
 import { AgentEventEmitter } from './agent-event-emitter';
 import { EventTypes } from './event-types';
-import type { AgentEvent, ToolPreCallPayload, ToolPostCallPayload, AgentStartedPayload, AgentCompletedPayload, ModelRequestPayload, ModelResponsePayload } from './types';
+import type { AgentEvent, ToolPreCallPayload, ToolPostCallPayload, AgentStartedPayload, AgentCompletedPayload, ModelRequestPayload, ModelResponsePayload, SkillOnLoadPayload } from './types';
 
 export const createLogsWriter = (): (() => void) => {
   const handler = (event: AgentEvent) => {
@@ -47,6 +47,10 @@ export const createLogsWriter = (): (() => void) => {
         recordUsage(modelResponseData.responseResult.usage);
         log.reasoning(extractResponsesReasoningContent(modelResponseData.responseResult));
         log.reasoning(extractResponsesReasoning(modelResponseData.responseResult));
+        break;
+      case EventTypes.SKILL_ON_LOAD:
+        const skillOnLoadData = event.data as SkillOnLoadPayload;
+        log.skillLoaded(skillOnLoadData.agentName, skillOnLoadData.skillName);
         break;
     }
   };

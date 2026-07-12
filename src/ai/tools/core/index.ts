@@ -1,4 +1,5 @@
 import { ToolsRegistry } from '../tools-registry';
+import { useSkillToolDefinition } from './skill.tool';
 import { requestUserToolDefinition } from './user.tool';
 import { webSearchToolDefinition } from './web-search.tool';
 
@@ -7,5 +8,5 @@ import { webSearchToolDefinition } from './web-search.tool';
  * Should be called during application startup.
  */
 export const registerCoreTools = async (): Promise<void> => {
-  ToolsRegistry.registerToolGroup('core', [webSearchToolDefinition, requestUserToolDefinition]);
+  ToolsRegistry.registerToolGroup('core', [webSearchToolDefinition, requestUserToolDefinition, useSkillToolDefinition]);
 };

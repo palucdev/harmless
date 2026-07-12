@@ -14,6 +14,7 @@ import { toInputMessage } from '../../client';
 import { AgentEventEmitter } from '../../memory/events/agent-event-emitter';
 import { EventTypes } from '../../memory/events/event-types';
 import { spawnAgent } from './agent-spawner';
+import SkillsRegistry from '../skills/skills-registry';
 
 const MAX_DEPTH = 3;
 
@@ -27,6 +28,22 @@ export class Agent {
     this.toolRunner = new ToolRunner(definition.tools);
     this.subagentId = subagentId;
   }
+
+  private prepareSystemPrompt = (): string => {
+    let systemPrompt = this.definition.systemPrompt;
+    const skills = SkillsRegistry.getAgentSkills(this.definition.name);
+
+    systemPrompt += '<skills>';
+    skills.forEach((skill) => {
+      systemPrompt += '<skill>';
+      systemPrompt += '    <name>' + skill.name + '</name>';
+      systemPrompt += '    <description>' + skill.description + '</description>';
+      systemPrompt += '</skill>';
+    });
+    systemPrompt += '</skills>';
+
+    return systemPrompt;
+  };
 
   public run = async (
     query: string,
@@ -43,7 +60,7 @@ export class Agent {
         throw new Error('Max agent depth exceeded');
       }
 
-      currentConversation = [toInputMessage('system', this.definition.systemPrompt), ...conversationHistory, toInputMessage('user', query)];
+      currentConversation = [toInputMessage('system', this.prepareSystemPrompt()), ...conversationHistory, toInputMessage('user', query)];
       AgentEventEmitter.emit(EventTypes.AGENT_STARTED, { agentName: this.definition.name, sessionId, query, depth, subagentId: this.subagentId });
 
       for (let step = 1; step <= this.definition.stepLimit; step++) {
@@ -155,6 +172,15 @@ export class Agent {
                 output = results.join('\n\n---\n\n');
               } else {
                 output = 'Error: tasks array is required and must not be empty';
+              }
+            } else if (toolName === 'use_skill') {
+              const skillName = args.skillName as string;
+              const skill = SkillsRegistry.getAgentSkills(this.definition.name).find((s) => s.name === skillName);
+              if (skill) {
+                AgentEventEmitter.emit(EventTypes.SKILL_ON_LOAD, { agentName: this.definition.name, skillName });
+                output = skill.instructions;
+              } else {
+                output = `Error: skill "${skillName}" not found`;
               }
             } else {
               const toolResult = await this.toolRunner.runTool(toolCall, sessionId);

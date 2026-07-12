@@ -10,16 +10,24 @@ import { registerCoreTools } from '../ai/tools/core';
 import { registerFilesystemTools } from '../ai/tools/fs';
 import { ToolsRegistry } from '../ai/tools/tools-registry';
 import { registerOrchestratorTools } from '../ai/tools/orchestrator';
+import { ReplActions } from './action/actions';
+import { handleSkills } from './action/skills';
+import { loadSkillDefinitions } from '../ai/skills/skills-loader';
+import SkillsRegistry from '../ai/skills/skills-registry';
 
 const initializeApplication = async () => {
   // Initialize singletons
   AgentEventEmitter.initialize();
   ToolsRegistry.initialize();
+  SkillsRegistry.initialize();
 
   // Load data
   await registerCoreTools();
   await registerFilesystemTools();
   await registerOrchestratorTools();
+
+  // Load agents and skills
+  await loadSkillDefinitions();
   await initAgentDefinitions();
 };
 
@@ -45,13 +53,13 @@ export const runReplLoop = async (): Promise<void> => {
     const action = await p.select({
       message: 'What would you like to do?',
       options: [
-        { value: 'simpleChat', label: 'Simple Chat', hint: 'basic conversation with LLM model' },
-        { value: 'newSession', label: 'New session', hint: 'start new session with full features' },
-        { value: 'agent', label: 'Agent', hint: 'switch agent definition' },
-        { value: 'skills', label: 'Skills', hint: 'enable / disable skils' },
-        { value: 'sessions', label: 'Sessions', hint: 'list & manage' },
-        { value: 'clear', label: 'Clear', hint: 'reset conversation' },
-        { value: 'exit', label: 'Exit' },
+        { value: ReplActions.NEW_SESSION, label: 'New session', hint: 'start new session with full features' },
+        { value: ReplActions.SIMPLE_CHAT, label: 'Simple Chat', hint: 'basic conversation with LLM model' },
+        { value: ReplActions.AGENT, label: 'Agent', hint: 'switch agent definition' },
+        { value: ReplActions.SKILLS, label: 'Skills', hint: 'enable / disable skils' },
+        { value: ReplActions.SESSIONS, label: 'Sessions', hint: 'list & manage' },
+        { value: ReplActions.CLEAR, label: 'Clear', hint: 'reset conversation' },
+        { value: ReplActions.EXIT, label: 'Exit' },
       ],
     });
 
@@ -62,20 +70,20 @@ export const runReplLoop = async (): Promise<void> => {
       return;
     }
 
-    if (action === 'clear') {
+    if (action === ReplActions.CLEAR) {
       showStats();
       await cleanup();
       continue;
     }
 
-    if (action === 'exit') {
+    if (action === ReplActions.EXIT) {
       showStats();
       p.outro('Goodbye!');
       await cleanup();
       return;
     }
 
-    if (action === 'agent') {
+    if (action === ReplActions.AGENT) {
       const selectedAgent = await handleAgentChange();
 
       if (selectedAgent) {
@@ -85,12 +93,17 @@ export const runReplLoop = async (): Promise<void> => {
       showHeader(currentAgentDefinition.name, model, 1);
     }
 
-    if (action === 'simpleChat') {
+    if (action === ReplActions.SKILLS) {
+      await handleSkills(currentAgentDefinition);
+      continue;
+    }
+
+    if (action === ReplActions.SIMPLE_CHAT) {
       await simpleChat(model);
       continue;
     }
 
-    if (action === 'newSession') {
+    if (action === ReplActions.NEW_SESSION) {
       await newSession(currentAgentDefinition, currentSessionId);
       continue;
     }

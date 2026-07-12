@@ -79,7 +79,13 @@ export interface TokensRecordedPayload {
   outputTokens: number;
 }
 
-export type EventPayload = MessageAddedPayload | ModelRequestPayload | ModelResponsePayload | AgentStartedPayload | AgentCompletedPayload | ToolPreCallPayload | ToolPostCallPayload;
+export interface SkillOnLoadPayload {
+  skillName: string;
+  agentName: string;
+}
+
+export type EventPayload =
+  MessageAddedPayload | ModelRequestPayload | ModelResponsePayload | AgentStartedPayload | AgentCompletedPayload | ToolPreCallPayload | ToolPostCallPayload | SkillOnLoadPayload;
 
 export interface AgentEvent {
   seq: number;
