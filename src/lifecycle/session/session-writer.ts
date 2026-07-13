@@ -8,10 +8,10 @@ export const createSessionWriter = (db: SessionRepository): (() => void) => {
   const handler = (event: AgentEvent): void => {
     switch (event.type) {
       case EventTypes.MESSAGE_ADDED: {
-        const { sessionId, item, sequence } = event.data as MessageAddedPayload;
+        const { sessionId, item } = event.data as MessageAddedPayload;
         const session = db.getSession(sessionId);
         if (!session) break;
-        db.saveConversationItem(sessionId, item, sequence);
+        db.saveConversationItem(sessionId, item, db.getNextSequence(sessionId));
         break;
       }
 

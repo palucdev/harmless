@@ -21,6 +21,7 @@ export interface MessageAddedPayload {
   sessionId: number;
   item: AgentConversationItem;
   sequence: number;
+  subagentId?: string;
 }
 
 export interface AgentStartedPayload {
@@ -65,6 +66,7 @@ export interface ToolPreCallPayload {
   toolName: string;
   callId: string;
   args: Record<string, unknown>;
+  subagentId?: string;
 }
 
 export interface ToolPostCallPayload {
@@ -73,12 +75,14 @@ export interface ToolPostCallPayload {
   callId: string;
   output: string;
   status: 'success' | 'error';
+  subagentId?: string;
 }
 
 export interface TokensRecordedPayload {
   sessionId: number;
   inputTokens: number;
   outputTokens: number;
+  subagentId?: string;
 }
 
 export interface SkillOnLoadPayload {

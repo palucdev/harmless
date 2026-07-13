@@ -62,6 +62,10 @@ export class Agent {
 
       const filteredHistory = conversationHistory.filter((item) => (item as { role?: string }).role !== 'system');
       currentConversation = [toInputMessage('system', this.prepareSystemPrompt()), ...filteredHistory, toInputMessage('user', query)];
+
+      const userMessageItem = currentConversation[currentConversation.length - 1]!;
+      AgentEventEmitter.emit(EventTypes.MESSAGE_ADDED, { sessionId, item: userMessageItem, sequence: currentConversation.length - 1 });
+
       AgentEventEmitter.emit(EventTypes.AGENT_STARTED, { agentName: this.definition.name, sessionId, query, depth, subagentId: this.subagentId });
 
       for (let step = 1; step <= this.definition.stepLimit; step++) {

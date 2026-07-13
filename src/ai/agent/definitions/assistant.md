@@ -1,7 +1,7 @@
 ---
 name: 'assistant'
 description: 'General purpose assistant for simple tasks'
-tools: [core]
+tools: [core, fs]
 stepLimit: 15
 subAgents: []
 skills: [weather-presenter]

@@ -1,5 +1,9 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
+import crypto from 'crypto';
 import type { HookAction } from './hook-loader';
 import type { EventPayload } from '../events/types';
 
@@ -64,9 +68,13 @@ export class HookRegistry {
    * Execute a bash script.
    */
   private static executeBash = async (eventName: string, script: string, payload: EventPayload): Promise<void> => {
+    let tempFilePath = '';
     try {
       const sessionId = (payload as any).sessionId || '';
       const payloadStr = JSON.stringify(payload);
+      
+      tempFilePath = path.join(os.tmpdir(), `hook-payload-${Date.now()}-${crypto.randomUUID()}.json`);
+      await fs.writeFile(tempFilePath, payloadStr, 'utf8');
       
       const { stdout, stderr } = await execFileAsync('bash', [
         '-c',
@@ -74,13 +82,17 @@ export class HookRegistry {
         '--',
         eventName,
         String(sessionId),
-        payloadStr
+        tempFilePath
       ]);
       
       if (stdout) console.log(`[Hook: ${eventName} (bash)]\n${stdout.trim()}`);
       if (stderr) console.error(`[Hook: ${eventName} (bash) stderr]\n${stderr.trim()}`);
     } catch (error: any) {
       console.error(`[Hook: ${eventName} (bash)] Error executing script:`, error.message);
+    } finally {
+      if (tempFilePath) {
+        await fs.unlink(tempFilePath).catch(() => {});
+      }
     }
   };
 
@@ -88,21 +100,29 @@ export class HookRegistry {
    * Execute a JS script using node.
    */
   private static executeJs = async (eventName: string, scriptPath: string, payload: EventPayload): Promise<void> => {
+    let tempFilePath = '';
     try {
       const sessionId = (payload as any).sessionId || '';
       const payloadStr = JSON.stringify(payload);
+      
+      tempFilePath = path.join(os.tmpdir(), `hook-payload-${Date.now()}-${crypto.randomUUID()}.json`);
+      await fs.writeFile(tempFilePath, payloadStr, 'utf8');
       
       const { stdout, stderr } = await execFileAsync('node', [
         scriptPath,
         eventName,
         String(sessionId),
-        payloadStr
+        tempFilePath
       ]);
 
       if (stdout) console.log(`[Hook: ${eventName} (js)]\n${stdout.trim()}`);
       if (stderr) console.error(`[Hook: ${eventName} (js) stderr]\n${stderr.trim()}`);
     } catch (error: any) {
       console.error(`[Hook: ${eventName} (js)] Error executing script:`, error.message);
+    } finally {
+      if (tempFilePath) {
+        await fs.unlink(tempFilePath).catch(() => {});
+      }
     }
   };
 
