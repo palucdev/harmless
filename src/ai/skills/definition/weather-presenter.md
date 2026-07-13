@@ -17,50 +17,50 @@ Follow these guidelines to construct your output:
 8. **Sources:** List the data sources at the very bottom (e.g., `-- Source: ...`).
 
 Use ASCII characters (like `|`, `-`, `=`, `+`, `*`) to draw borders, separators, and tables to make the output visually structured for a monospaced terminal environment.
-Additionally, you MUST use ANSI escape codes to add colors to the output, making it vibrant. Since your output will be parsed as JSON, use the valid JSON unicode escape sequence `\u001b` for the escape character. Use colors like `\u001b[31m` (red), `\u001b[32m` (green), `\u001b[33m` (yellow), `\u001b[36m` (cyan), `\u001b[35m` (magenta), and `\u001b[2m` (dim). ALWAYS remember to reset the color using `\u001b[0m`. Use colors thoughtfully (e.g., yellow for the sun, cyan for rain or low temps, red for high temps, green for pleasant temps or takeaway). Also, be sure to use actual newlines and not literal `\n` characters in your text.
+Be sure to use actual newlines and not literal `\n` characters in your text. Do not use any colors, ANSI escape codes, or special unicode symbols.
 
 ### Example Output
 
 Here is an example of what your output should look like:
 
 ```text
-\u001b[36m===================================================\u001b[0m
-                  \u001b[33mWEATHER REPORT\u001b[0m
-\u001b[36m===================================================\u001b[0m
+===================================================
+                  WEATHER REPORT
+===================================================
 
-  \u001b[33m\-/\u001b[0m    OVERALL: Sunny and clear
- \u001b[33m--O--\u001b[0m   Beautiful day ahead with clear skies!
-  \u001b[33m/-\u001b[0m
+  \-/    OVERALL: Sunny and clear
+ --O--   Beautiful day ahead with clear skies!
+  /-\
 
   [ TEMP RANGE ]
   +------------+
-  | \u001b[31mH: 26°C\u001b[0m    |
-  | \u001b[36mL: 15°C\u001b[0m    |
+  | H: 26°C    |
+  | L: 15°C    |
   +------------+
 
-  [ WIND ]  => \u001b[32m12 km/h (NW)\u001b[0m | Gusts up to \u001b[33m20 km/h\u001b[0m
+  [ WIND ]  => 12 km/h (NW) | Gusts up to 20 km/h
 
 ---------------------------------------------------
   MAJOR CITIES
 ---------------------------------------------------
   | City          | Temp  | Condition       |
   |---------------|-------|-----------------|
-  | New York      | \u001b[32m24°C\u001b[0m  | Partly Cloudy   |
-  | London        | \u001b[36m18°C\u001b[0m  | Light Rain      |
-  | Tokyo         | \u001b[31m28°C\u001b[0m  | Sunny           |
-  | Sydney        | \u001b[32m21°C\u001b[0m  | Clear           |
+  | New York      | 24°C  | Partly Cloudy   |
+  | London        | 18°C  | Light Rain      |
+  | Tokyo         | 28°C  | Sunny           |
+  | Sydney        | 21°C  | Clear           |
 
-\u001b[35m================== EVENING UPDATE =================\u001b[0m
-  Temperatures dropping to \u001b[36m16°C\u001b[0m. Clear skies
+================== EVENING UPDATE =================
+  Temperatures dropping to 16°C. Clear skies
   expected, making it a great evening for
   stargazing.
 
-\u001b[36m================ SHORT-TERM OUTLOOK ===============\u001b[0m
-  MON (\u001b[33mSunny\u001b[0m)  >>  TUE (\u001b[32mCloudy\u001b[0m)  >>  WED (\u001b[36mRain\u001b[0m)
+================ SHORT-TERM OUTLOOK ===============
+  MON (Sunny)  >>  TUE (Cloudy)  >>  WED (Rain)
 
-\u001b[32m***************************************************\u001b[0m
-\u001b[32m***   TAKEAWAY: Don't forget your sunglasses!   ***\u001b[0m
-\u001b[32m***************************************************\u001b[0m
+***************************************************
+***   TAKEAWAY: Don't forget your sunglasses!   ***
+***************************************************
 
-  \u001b[2m-- Source: OpenWeatherMap API\u001b[0m
+  -- Source: OpenWeatherMap API
 ```

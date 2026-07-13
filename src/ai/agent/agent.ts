@@ -60,7 +60,8 @@ export class Agent {
         throw new Error('Max agent depth exceeded');
       }
 
-      currentConversation = [toInputMessage('system', this.prepareSystemPrompt()), ...conversationHistory, toInputMessage('user', query)];
+      const filteredHistory = conversationHistory.filter((item) => (item as { role?: string }).role !== 'system');
+      currentConversation = [toInputMessage('system', this.prepareSystemPrompt()), ...filteredHistory, toInputMessage('user', query)];
       AgentEventEmitter.emit(EventTypes.AGENT_STARTED, { agentName: this.definition.name, sessionId, query, depth, subagentId: this.subagentId });
 
       for (let step = 1; step <= this.definition.stepLimit; step++) {
