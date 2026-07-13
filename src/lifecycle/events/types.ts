@@ -17,10 +17,6 @@ export interface SessionSwitchedPayload {
   toSessionId: number;
 }
 
-export interface SessionCompletedPayload {
-  sessionId: number;
-}
-
 export interface MessageAddedPayload {
   sessionId: number;
   item: AgentConversationItem;
@@ -58,6 +54,12 @@ export interface ModelResponsePayload {
   responseResult: HarmlessResponseResult;
 }
 
+export interface TurnCompletedPayload {
+  sessionId: number;
+  response: string;
+  itemCount: number;
+}
+
 export interface ToolPreCallPayload {
   sessionId: number;
   toolName: string;
@@ -85,7 +87,16 @@ export interface SkillOnLoadPayload {
 }
 
 export type EventPayload =
-  MessageAddedPayload | ModelRequestPayload | ModelResponsePayload | AgentStartedPayload | AgentCompletedPayload | ToolPreCallPayload | ToolPostCallPayload | SkillOnLoadPayload;
+  | SessionCreatedPayload
+  | SessionSwitchedPayload
+  | MessageAddedPayload
+  | ModelRequestPayload
+  | ModelResponsePayload
+  | AgentStartedPayload
+  | AgentCompletedPayload
+  | ToolPreCallPayload
+  | ToolPostCallPayload
+  | SkillOnLoadPayload;
 
 export interface AgentEvent {
   seq: number;

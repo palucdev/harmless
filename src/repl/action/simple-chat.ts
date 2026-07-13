@@ -2,6 +2,7 @@ import * as p from '@clack/prompts';
 import { showStats } from '../interface/ui';
 import { run } from '../../ai/agent/simple-chat-assistant';
 import type { AgentConversationItem } from '../../client/responses-client';
+import log from '../interface/logger';
 
 export const simpleChat = async (model: string): Promise<void> => {
   let conversation: AgentConversationItem[] = [];
@@ -25,6 +26,10 @@ export const simpleChat = async (model: string): Promise<void> => {
     conversation = updatedConversation;
 
     s.stop('Done');
+
+    const lastMessage = updatedConversation[updatedConversation.length - 1]! as any;
+    const responseText = lastMessage?.content?.find((c: any) => c.type === 'output_text')?.text ?? '';
+    log.response(responseText);
 
     showStats();
   } catch (err) {

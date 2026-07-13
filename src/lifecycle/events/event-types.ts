@@ -7,4 +7,7 @@ export enum EventTypes {
   MODEL_RESPONSE = 'model:response',
   MESSAGE_ADDED = 'message:added',
   SKILL_ON_LOAD = 'skill:onLoad',
+  SESSION_CREATED = 'session:created',
+  SESSION_SWITCHED = 'session:switched',
+  TOKENS_RECORDED = 'tokens:recorded',
 }

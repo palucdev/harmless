@@ -5,8 +5,8 @@ import { showStats } from '../interface/ui';
 import log from '../interface/logger';
 import type { AgentDefinition } from '../../ai/types/agent-definition';
 
-export const newSession = async (agentDefinition: AgentDefinition, currentSessionId: number): Promise<void> => {
-  let conversation: AgentConversationItem[] = [];
+export const newSession = async (agentDefinition: AgentDefinition, currentSessionId: number, history?: AgentConversationItem[]): Promise<void> => {
+  let conversation: AgentConversationItem[] = history ?? [];
   const agent: Agent = new Agent(agentDefinition);
 
   while (true) {
