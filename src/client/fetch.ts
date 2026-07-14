@@ -2,10 +2,24 @@ export const fetchWithRetry = async (url: string, options: RequestInit, maxRetri
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch(url, options);
-      const data = (await response.json()) as { error?: Error };
+      const text = await response.text();
+      let data: any;
+      
+      try {
+        data = text ? JSON.parse(text) : undefined;
+      } catch (parseErr) {
+        throw new Error(`Failed to parse JSON response (status ${response.status}). Body: ${text.slice(0, 500)}...`);
+      }
 
       if (!response.ok || data?.error) {
-        const message = data?.error?.message ?? `Request failed with status ${response.status}`;
+        let message = data?.error?.message ?? (typeof data?.error === 'string' ? data.error : `Request failed with status ${response.status}`);
+        
+        if (data?.error?.metadata?.provider_name) {
+          message = `${message} (${data.error.metadata.provider_name})`;
+        }
+        if (data?.error?.metadata?.raw) {
+          message = `${message}: ${data.error.metadata.raw}`;
+        }
 
         if (message.includes('JSON error injected into SSE stream') && attempt < maxRetries) {
           console.warn(`[OpenRouter] Retrying after SSE error (attempt ${attempt}/${maxRetries})...`);

@@ -28,6 +28,9 @@ const colors = {
 /** Get the usable width for text wrapping (terminal width minus clack's UI chrome). */
 const getWidth = () => (process.stdout.columns || 100) - 6;
 
+/** Width for text inside a boxen box (accounts for border + padding on each side). */
+const getBoxWidth = () => getWidth() - 4;
+
 /** Strip ANSI escape codes to get the visible character length. */
 const stripAnsi = (str: string): string => str.replace(/\x1b\[[0-9;]*m/g, '');
 
@@ -79,7 +82,7 @@ const log = {
 
   box: (text: string) => {
     clackLog.message(
-      boxen(wrap(text), {
+      boxen(wrap(text, getBoxWidth()), {
         borderStyle: 'round',
         borderColor: 'cyan',
         padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -115,7 +118,7 @@ const log = {
 
   vision: (path: string, question: string) => {
     clackLog.info(
-      boxen(wrap(`${colors.blue}👁${colors.reset}  ${path}\n${colors.dim}Q: ${question}${colors.reset}`), {
+      boxen(wrap(`${colors.blue}👁${colors.reset}  ${path}\n${colors.dim}Q: ${question}${colors.reset}`, getBoxWidth()), {
         borderStyle: 'round',
         borderColor: 'blue',
         padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -133,7 +136,7 @@ const log = {
     if (!summaries?.length) return;
     const body = summaries
       .map((s) =>
-        wrap(s)
+        wrap(s.replace(/\n{2,}/g, '\n').trim(), getBoxWidth())
           .split('\n')
           .map((line) => `${colors.gray}${colors.italic}${line}${colors.reset}`)
           .join('\n')
@@ -155,7 +158,7 @@ const log = {
 
   searchHeader: (keywords: string, semantic: string) => {
     clackLog.info(
-      boxen(wrap(`${colors.cyan}fts:${colors.reset}${colors.dim}      "${keywords}"${colors.reset}\n${colors.cyan}semantic:${colors.reset}${colors.dim} "${semantic}"${colors.reset}`), {
+      boxen(wrap(`${colors.cyan}fts:${colors.reset}${colors.dim}      "${keywords}"${colors.reset}\n${colors.cyan}semantic:${colors.reset}${colors.dim} "${semantic}"${colors.reset}`, getBoxWidth()), {
         borderStyle: 'round',
         borderColor: 'cyan',
         padding: { top: 0, bottom: 0, left: 1, right: 1 },

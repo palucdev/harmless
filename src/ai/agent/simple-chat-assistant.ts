@@ -15,10 +15,9 @@ const assistantToolHandlers: Record<string, (args: unknown) => Promise<unknown>>
 const MAX_STEPS = 100;
 
 const runTool = async (toolCall: OutputItemFunctionCall) => {
-  const args = JSON.parse(toolCall.arguments);
-  log.tool(toolCall.name, args);
-
   try {
+    const args = JSON.parse(toolCall.arguments);
+    log.tool(toolCall.name, args);
     const handler = assistantToolHandlers[toolCall.name];
     if (!handler) throw new Error(`Unknown tool: ${toolCall.name}`);
     const result = await handler(args);
@@ -28,8 +27,10 @@ const runTool = async (toolCall: OutputItemFunctionCall) => {
     return { type: 'function_call_output', call_id: toolCall.call_id, output };
   } catch (err) {
     const error = err as Error;
-    const output = JSON.stringify({ error: error.message });
-    log.toolResult(toolCall.name, false, error.message);
+    const isJsonParseError = error instanceof SyntaxError && error.message.includes('JSON');
+    const errorMessage = isJsonParseError ? `Invalid JSON arguments generated: ${error.message}` : error.message;
+    const output = JSON.stringify({ error: errorMessage });
+    log.toolResult(toolCall.name, false, errorMessage);
     return { type: 'function_call_output', call_id: toolCall.call_id, output };
   }
 };

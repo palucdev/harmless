@@ -21,8 +21,8 @@ export const newSession = async (agentDefinition: AgentDefinition, currentSessio
     if (p.isCancel(input)) break;
     const userMessage = input as string;
 
+    const s = p.spinner();
     try {
-      const s = p.spinner();
       s.start('🧠 Thinking...');
 
       const result = await agent.run(userMessage, conversation, currentSessionId);
@@ -33,6 +33,7 @@ export const newSession = async (agentDefinition: AgentDefinition, currentSessio
       log.response(result.response);
       showStats();
     } catch (err) {
+      s.stop('Error');
       const error = err as Error;
       p.log.error(error.message);
     }

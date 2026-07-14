@@ -18,8 +18,8 @@ export const simpleChat = async (model: string): Promise<void> => {
   if (p.isCancel(input)) return;
   const userMessage = input as string;
 
+  const s = p.spinner();
   try {
-    const s = p.spinner();
     s.start('🧠 Thinking...');
 
     const updatedConversation = await run(userMessage, conversation, model);
@@ -33,6 +33,7 @@ export const simpleChat = async (model: string): Promise<void> => {
 
     showStats();
   } catch (err) {
+    s.stop('Error');
     const error = err as Error;
     p.log.error(error.message);
   }

@@ -41,7 +41,9 @@ export class ToolRunner {
       return { type: OpenAIResponseFunctionToolCallOutput.type.FUNCTION_CALL_OUTPUT, call_id: toolCall.call_id, output };
     } catch (err) {
       const error = err as Error;
-      const output = JSON.stringify({ error: error.message });
+      const isJsonParseError = error instanceof SyntaxError && error.message.includes('JSON');
+      const errorMessage = isJsonParseError ? `Invalid JSON arguments generated: ${error.message}` : error.message;
+      const output = JSON.stringify({ error: errorMessage });
       AgentEventEmitter.emit(EventTypes.TOOL_POST_USE, { sessionId, toolName: toolCall.name, callId: toolCall.call_id, output, status: 'error' });
 
       return { type: OpenAIResponseFunctionToolCallOutput.type.FUNCTION_CALL_OUTPUT, call_id: toolCall.call_id, output };
